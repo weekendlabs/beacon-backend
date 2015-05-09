@@ -15,12 +15,12 @@ module.exports = (router, appModel) ->
   router.get('/:id', (req, res) ->
     console.log 'getting app with a particular id...'
     id = req.params.id
-    appModel.find {_id:id}, (err, apps) ->
+    appModel.findOne {_id:id}, (err, app) ->
       if(err)
         console.log(err)
         res.status(500).end()
-      console.log(apps)
-      res.json(apps)
+      console.log(app)
+      res.json(app)
   )
 
   router.post('/', (req, res) ->
