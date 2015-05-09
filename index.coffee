@@ -6,6 +6,12 @@ cors = require 'cors'
 app = express()
 app.use bodyParser.json()
 app.use cors()
+socketIOClient = require('socket.io-client')('http://ec2-52-24-94-142.us-west-2.compute.amazonaws.com:10000')
+socketIOClient.on 'connect', ->
+  console.log("socket io client connected to server")
+
+socketIOClient.on 'stats', (data) ->
+  console.log(JSON.stringify(data))
 
 appModel = require './dbmodels/app'
 

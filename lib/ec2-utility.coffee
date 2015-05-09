@@ -29,48 +29,48 @@ launchInstance = (minInstances, maxInstances) ->
             ToPort : -1
 
           ec2.authorizeSecurityGroupIngress addRulesParams, (err, data) ->
-              if(err)
-                console.log("error:"+err)
-                return
-              else
-                console.log("added rules --"+JSON.stringify(data))
-                securityGroupIdArray = []
-                securityGroupIdArray.push(securityGroupId)
+            if(err)
+              console.log("error:"+err)
+              return
+            else
+              console.log("added rules --"+JSON.stringify(data))
+              securityGroupIdArray = []
+              securityGroupIdArray.push(securityGroupId)
 
-                #creating ec2 instance
-                createInstanceParams =
-                  ImageId: 'ami-439aab73'
-                  InstanceType: 't2.micro'
-                  MinCount: minInstances
-                  MaxCount: maxInstances
-                  SecurityGroupIds: securityGroupIdArray
-                  KeyName: 'mynewkeypair'
+              #creating ec2 instance
+              createInstanceParams =
+                ImageId: 'ami-45faca75'
+                InstanceType: 't2.micro'
+                MinCount: minInstances
+                MaxCount: maxInstances
+                SecurityGroupIds: securityGroupIdArray
+                KeyName: 'mynewkeypair'
 
-                ec2.runInstances createInstanceParams, (err,data) ->
-                  if(err)
-                    console.log("error:"+err)
-                    return
-                  else
-                    instances = []
-                    console.log("Instances created --")
-                    console.log(JSON.stringify(data))
+              ec2.runInstances createInstanceParams, (err,data) ->
+                if(err)
+                  console.log("error:"+err)
+                  return
+                else
+                  instances = []
+                  console.log("Instances created --")
+                  console.log(JSON.stringify(data))
 
-                    data.Instances.forEach((instance) ->
-                      console.log("Created Instance with id: "+ instance.InstanceId)
-                      instances.push(instance.InstanceId)
-                    )
+                  data.Instances.forEach((instance) ->
+                    console.log("Created Instance with id: "+ instance.InstanceId)
+                    instances.push(instance.InstanceId)
+                  )
 
-                    waitForParams =
-                      InstanceIds: instances
+                  waitForParams =
+                    InstanceIds: instances
 
-                    ec2.waitFor 'instanceRunning', waitForParams, (err, data) ->
-                      if(err)
-                        console.log("error:"+err)
-                        res.send('error:'+err)
-                      else
-                        console.log("data:"+JSON.stringify(data))
-                        publicDnsName = data.Reservations[0].Instances[0].PublicDnsName + ":8080/"
-                        resolve(publicDnsName)
+                  ec2.waitFor 'instanceRunning', waitForParams, (err, data) ->
+                    if(err)
+                      console.log("error:"+err)
+                      res.send('error:'+err)
+                    else
+                      console.log("data:"+JSON.stringify(data))
+                      publicDnsName = data.Reservations[0].Instances[0].PublicDnsName + ":8080"
+                      resolve(publicDnsName)
 
 
 module.exports =

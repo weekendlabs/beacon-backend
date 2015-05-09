@@ -26,7 +26,7 @@ module.exports = (router, appModel) ->
   router.post('/', (req, res) ->
     console.log('creating a new app')
     name = req.body.name
-    newApp = new appModel({name: name, config: ''})
+    newApp = new appModel({name: name, config: '{}'})
 
     newApp.save (err, app) ->
       if(err)
@@ -45,6 +45,6 @@ module.exports = (router, appModel) ->
         console.log "error in creating new app:#{err}"
         res.status(500).end()
       else
-        console.log "created new app successfully"
+        console.log "update the app config successfully"
         res.json(app)
   )
