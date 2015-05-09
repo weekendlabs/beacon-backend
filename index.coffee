@@ -13,6 +13,7 @@ appRouter = express.Router()
 require('./lib/app')(appRouter, appModel)
 
 deployRouter = express.Router()
+require('./lib/deploy')(deployRouter, appModel)
 
 mongoose.connect 'mongodb://localhost/beacon', ->
   mongoose.connection.open 'once', ->
