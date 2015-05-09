@@ -13,21 +13,11 @@ socketClientCreated = false
 globalStream = null
 individualStreams = []
 
-module.exports = (router, appModel) ->
+
+
+module.exports = (router, appModel, io) ->
   router.post('/:id', (req, res) ->
     containerName = "node#{(new Date()).valueOf()}"
-    console.log("container Name:"+containerName)
-    # request
-    #   .post('ec2-52-24-94-142.us-west-2.compute.amazonaws.com:10000/containers/create')
-    #   .send({"ImageName":'node', "BucketName":'custombucket1418', "FileName":'tmp1431023187887.tar',"ContainerName":containerName})
-    #   .set('Content-Type','application/json')
-    #   .end (err,res1) ->
-    #     if(err)
-    #       console.log("Error in call to agent:"+err)
-    #     else
-    #       console.log("success:"+JSON.stringify(res1))
-    #       res.status(res1.status).end()
-
     #get the config from mongodb
     appId = req.params.id
     appModel.findOne({_id:appId}, (err, app) ->
@@ -53,31 +43,30 @@ module.exports = (router, appModel) ->
           console.log("ec2 instance launched")
           #creating socket io client for monitoring
           if(socketClientCreated == false)
-            socketIOClient = require('socket.io-client')("#{publicDnsName}")
+            console.log("entered the socket client loop")
+            socketIOClient = require('socket.io-client')("http://#{publicDnsName}")
             socketIOClient.on 'connect', ->
               console.log("socket io client connected to server")
-            socketIOClient.on 'stats', (data) ->
-              console.log(JSON.stringify(data))
-              globalStream = (K.stream (emitter) ->
-                emitter.emit(JSON.stringify(data))
-              ) unless globalStream
-
+            socketIOClient.on 'stat', (data) ->
+              io.sockets.emit('stat', data)
+            soketIOClient.on 'container-event', (data) ->
+              io.sockets.emit('container-event', data)
             socketClientCreated = true
+            console.log("exiting the socket client loop")
           #call to agent
           request
             .post(publicDnsName+"/containers/create")
             .send({"ImageName":appConfig.clusters[0].name, "BucketName":bucket, "FileName":fileName})
             .set('Content-Type','application/json')
-            .end (err,res) ->
+            .end (err,res1) ->
               if(err)
                 console.log("Error in call to agent:"+err)
+                res.status(500).end()
               else
                 console.log("success in creating container and container id:"+JSON.stringify(res))
-                individualStreams.push(globalStream.filter (stream) ->
-                  stream.id == res.body.containerId
-                )
+                res.status(200).end()
 
-        .catch ->
-          console.log("failed to launch ec2 instance")
+        # .catch ->
+        #   console.log("failed to launch ec2 instance")
     )
   )
