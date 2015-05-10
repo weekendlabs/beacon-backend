@@ -31,7 +31,7 @@ module.exports = (router, appModel, io) ->
       console.log(appConfig)
       fetchAndPackage(appConfig.clusters[0].github.url,appConfig.clusters[0].github.token).then (archivePath) ->
         #launch aws instance
-        #AWS.config.update({accessKeyId:'AKIAIAAZ7VPUJCPVXWFQ', secretAccessKey:'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', region:'us-west-2'})
+        
         AWS.config.update({accessKeyId:appConfig.aws.accessKey, secretAccessKey:appConfig.aws.secretKey, region:'us-west-2'})
         #pushing tar file to s3
         bucket = ''
