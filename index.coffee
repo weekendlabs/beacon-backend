@@ -10,16 +10,17 @@ app.use cors()
 
 server = require('http').Server(app)
 io = require('socket.io')(server)
-# socketIOClient = require('socket.io-client')('http://ec2-52-24-174-95.us-west-2.compute.amazonaws.com:7000')
-# socketIOClient.on 'connect', ->
-#   console.log("socket io client connected to server")
-#
-# socketIOClient.on 'stat', (data) ->
-#   console.log(JSON.stringify(data))
-#   io.sockets.emit('stat', data)
-# socketIOClient.on 'container-event', (data) ->
-#   console.log(JSON.stringify(data))
-#   io.sockets.emit('container-event', data)
+publicDnsName = 'http://ec2-52-24-83-183.us-west-2.compute.amazonaws.com:11000'
+socketIOClient = require('socket.io-client')(publicDnsName)
+socketIOClient.on 'connect', ->
+  console.log("socket io client connected to server")
+
+socketIOClient.on 'stat', (data) ->
+  console.log(JSON.stringify(data))
+  io.sockets.emit('stat', data)
+socketIOClient.on 'container-event', (data) ->
+  console.log(JSON.stringify(data))
+  io.sockets.emit('container-event', data)
 
 appModel = require './dbmodels/app'
 

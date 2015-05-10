@@ -31,29 +31,19 @@ module.exports = (router, appModel, io) ->
       console.log(appConfig)
       fetchAndPackage(appConfig.clusters[0].github.url,appConfig.clusters[0].github.token).then (archivePath) ->
         #launch aws instance
-        #AWS.config.update({accessKeyId:'AKIAIAAZ7VPUJCPVXWFQ', secretAccessKey:'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', region:'us-west-2'})
+        
         AWS.config.update({accessKeyId:appConfig.aws.accessKey, secretAccessKey:appConfig.aws.secretKey, region:'us-west-2'})
         #pushing tar file to s3
         bucket = ''
         fileName = R.last(archivePath.split(path.sep))
         s3Utility.pushFile(archivePath).then (bucketName) ->
           bucket = bucketName
-        ec2Utility.launchInstance(1,1)
-        .then (publicDnsName) ->
-          console.log("ec2 instance launched")
-          #creating socket io client for monitoring
-          if(socketClientCreated == false)
-            console.log("entered the socket client loop")
-            socketIOClient = require('socket.io-client')("http://#{publicDnsName}")
-            socketIOClient.on 'connect', ->
-              console.log("socket io client connected to server")
-            socketIOClient.on 'stat', (data) ->
-              io.sockets.emit('stat', data)
-            soketIOClient.on 'container-event', (data) ->
-              io.sockets.emit('container-event', data)
-            socketClientCreated = true
-            console.log("exiting the socket client loop")
-          #call to agent
+        # ec2Utility.launchInstance(1,1)
+        # .then (publicDnsName) ->
+          publicDnsName = 'http://ec2-52-24-83-183.us-west-2.compute.amazonaws.com:11000'
+          numberOfContainers = appConfig.clusters[0].max / 2;
+
+
           request
             .post(publicDnsName+"/containers/create")
             .send({"ImageName":appConfig.clusters[0].name, "BucketName":bucket, "FileName":fileName})
@@ -63,8 +53,10 @@ module.exports = (router, appModel, io) ->
                 console.log("Error in call to agent:"+err)
                 res.status(500).end()
               else
-                console.log("success in creating container and container id:"+JSON.stringify(res))
+                console.log("success in creating container and container id:")
                 res.status(200).end()
+
+
 
         # .catch ->
         #   console.log("failed to launch ec2 instance")
